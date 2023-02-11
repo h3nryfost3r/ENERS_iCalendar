@@ -2,6 +2,7 @@ from typing import List
 
 import asyncio
 import aiohttp
+from fake_useragent import UserAgent
 
 
 class ResponseHandler():
@@ -22,7 +23,10 @@ class ResponseHandler():
             return http_body
 
     async def __load_data_responses(self, urls):
-        async with aiohttp.ClientSession() as session:
+        headers = {
+            "User-Agent": UserAgent(use_external_data=True).random
+        }
+        async with aiohttp.ClientSession(headers=headers) as session:
             tasks = []
             for url in urls:
                 tasks.append(
