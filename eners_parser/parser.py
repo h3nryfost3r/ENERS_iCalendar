@@ -2,13 +2,12 @@ from bs4 import BeautifulSoup
 from datetime import date, time
 from typing import List
 
-from .schemas import Lesson, LessonType
-from .re_patterns import *
-
 from eners_responser.handler import ResponseHandler
+from eners_parser.schemas import Lesson, LessonType
+from eners_parser.re_patterns import *
+
 
 class InitParser:
-
     __soup: BeautifulSoup
     __response_handler: ResponseHandler
 
@@ -17,26 +16,29 @@ class InitParser:
         self.__soup = BeautifulSoup(''.join(
             self.__response_handler.get_responses()), 'lxml')
 
+    def get_soup(self):
+        return self.__soup
+
 
 class ParserHandler(InitParser):
     __lessons: List[Lesson] = list()
 
-    def __init__(self, data):
+    def __init__(self, group_name):
         # getting __soup from super class
-        super().__init__(data)
+        super().__init__(group_name)
 
         # handle __soup to get events
-        days = self.__soup.find_all(attrs={"class": "card"})
-
+        days = self.get_soup().find_all(attrs={"class": "card"})
         for day in days:
             self.__get_day_events(day)
 
     def __get_day_events(self, day: BeautifulSoup):
-        if day.find_next(attrs={"class": "list-group_name list-group_name-striped"}).text.strip() == "Пары отсутствуют":
+        if re.search(RE_DATE, (
+                lesson_header := day.find_next(attrs={"class": "card-header"}).text)) is None:
             return
-        lessons_date_re = re.search(
-            RE_DATE, day.find_next(attrs={"class": "card-header"}).text
-        )
+
+        lessons_date_re = re.search(RE_DATE, lesson_header)
+
         lessons_date = date(
             year=int(lessons_date_re.group(3)),
             month=int(lessons_date_re.group(2)),
