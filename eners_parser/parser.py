@@ -5,29 +5,34 @@ from typing import List
 from .schemas import Lesson, LessonType
 from .re_patterns import *
 
+from eners_responser.handler import ResponseHandler
 
 class InitParser:
-    soup: BeautifulSoup
 
-    def __init__(self, data):
-        self.soup = BeautifulSoup(data, 'lxml')
+    __soup: BeautifulSoup
+    __response_handler: ResponseHandler
+
+    def __init__(self, group_name):
+        self.__response_handler = ResponseHandler(group_name=group_name)
+        self.__soup = BeautifulSoup(''.join(
+            self.__response_handler.get_responses()), 'lxml')
 
 
 class ParserHandler(InitParser):
-    lessons: List[Lesson] = list()
+    __lessons: List[Lesson] = list()
 
     def __init__(self, data):
-        # getting soup from super class
+        # getting __soup from super class
         super().__init__(data)
 
-        # handle soup to get events
-        days = self.soup.find_all(attrs={"class": "card"})
+        # handle __soup to get events
+        days = self.__soup.find_all(attrs={"class": "card"})
 
         for day in days:
-            self.get_day_events(day)
+            self.__get_day_events(day)
 
-    def get_day_events(self, day: BeautifulSoup):
-        if day.find_next(attrs={"class": "list-group list-group-striped"}).text.strip() == "Пары отсутствуют":
+    def __get_day_events(self, day: BeautifulSoup):
+        if day.find_next(attrs={"class": "list-group_name list-group_name-striped"}).text.strip() == "Пары отсутствуют":
             return
         lessons_date_re = re.search(
             RE_DATE, day.find_next(attrs={"class": "card-header"}).text
@@ -42,23 +47,28 @@ class ParserHandler(InitParser):
                 lambda x: x.text.strip(), day.find_all('li')
         ):
             lesson_time_re = re.search(RE_TIME, event)
+
             lesson_time_start = time(
                 hour=int(lesson_time_re.group(2)),
                 minute=int(lesson_time_re.group(3))
             )
+
             lesson_time_end = time(
                 hour=int(lesson_time_re.group(5)),
                 minute=int(lesson_time_re.group(6))
             )
+
             lesson_type: LessonType = LessonType.LECTURE if str(re.search(RE_LESSON, event).group(1)) == 'л' else \
                 LessonType.PRACTICE if str(re.search(RE_LESSON, event).group(1)) == 'пр' else \
                     LessonType.LAB if str(re.search(RE_LESSON, event).group(1)) == 'лаб' else \
-                        LessonType.UNKNOWN
+                        LessonType.EXAM if str(re.search(RE_LESSON, event).group(1)) == 'экзамен' else \
+                            LessonType.UNKNOWN
+
             lesson_name = str(re.search(RE_LESSON, event).group(2))
             lesson_cabinet = str(re.search(RE_CABINET, event).group(1))
             lesson_teacher = str(re.search(RE_TEACHER, event).group(1))
 
-            self.lessons.append(Lesson(
+            self.__lessons.append(Lesson(
                 event_date=lessons_date,
                 start_time=lesson_time_start,
                 end_time=lesson_time_end,
@@ -69,4 +79,4 @@ class ParserHandler(InitParser):
             ))
 
     def get_lessons(self):
-        return self.lessons.copy()
+        return self.__lessons.copy()
