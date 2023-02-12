@@ -1,4 +1,5 @@
 from typing import List
+
 import icalendar as ical
 from eners_parser import schemas
 from datetime import datetime
@@ -11,7 +12,7 @@ class EnersCalendarHandler:
     cal_tz_str: str = 'Europe/Moscow'
     __cal_tz_info = pytz.timezone(cal_tz_str)
 
-    def __init__(self, data):
+    def __init__(self, data: List[schemas.Lesson]):
         self.tz = pytz.timezone(self.cal_tz_str)
         self.cal = ical.Calendar({
             'prodid': '-//ENERS calendar vALPHA//',
@@ -19,6 +20,8 @@ class EnersCalendarHandler:
             'tzid': self.__cal_tz_info,
             'method': 'PUBLISH'
         })
+        for event in data:
+            self.__add_event(event)
 
     def __generate_ical_Event(self, lesson: schemas.Lesson):
         event = ical.Event({
@@ -35,11 +38,10 @@ class EnersCalendarHandler:
         event.add('dtstamp', datetime.now(tz=self.__cal_tz_info))
         return event
 
-    def add_event(self, lesson: schemas.Lesson):
+    def __add_event(self, lesson: schemas.Lesson):
         self.cal.add_component(
             self.__generate_ical_Event(lesson))
         return True
-
 
     def write_ical(self, path='./file.ics'):
         with open(path, 'wb') as f:

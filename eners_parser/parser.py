@@ -11,8 +11,8 @@ class InitParser:
     __soup: BeautifulSoup
     __response_handler: ResponseHandler
 
-    def __init__(self, group_name):
-        self.__response_handler = ResponseHandler(group_name=group_name)
+    def __init__(self, group_name, weeks_range: range):
+        self.__response_handler = ResponseHandler(group_name=group_name, weeks_range=weeks_range)
         self.__soup = BeautifulSoup(''.join(
             self.__response_handler.get_responses()), 'lxml')
 
@@ -23,18 +23,28 @@ class InitParser:
 class ParserHandler(InitParser):
     __lessons: List[Lesson] = list()
 
-    def __init__(self, group_name):
-        # getting __soup from super class
-        super().__init__(group_name)
-
-        # handle __soup to get events
+    def __init__(
+            self,
+            group_name,
+            weeks_range: range,
+            is_month: bool = False,
+            is_next: bool = False
+    ):
+        super().__init__(group_name, weeks_range)
         days = self.get_soup().find_all(attrs={"class": "card"})
         for day in days:
-            self.__get_day_events(day)
+            self.__get_day_events(day, is_month, is_next)
 
-    def __get_day_events(self, day: BeautifulSoup):
-        if re.search(RE_DATE, (
-                lesson_header := day.find_next(attrs={"class": "card-header"}).text)) is None:
+    def __get_day_events(
+            self,
+            day: BeautifulSoup,
+            is_month: bool,
+            is_next: bool
+    ):
+        if re.search(
+                RE_DATE,
+                (lesson_header := day.find_next(attrs={"class": "card-header"}).text)
+        ) is None:
             return
 
         lessons_date_re = re.search(RE_DATE, lesson_header)
@@ -44,6 +54,9 @@ class ParserHandler(InitParser):
             month=int(lessons_date_re.group(2)),
             day=int(lessons_date_re.group(1))
         )
+
+        if is_month and lessons_date.month != (date.today().month + is_next):
+            return
 
         for event in map(
                 lambda x: x.text.strip(), day.find_all('li')

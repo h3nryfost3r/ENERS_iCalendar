@@ -11,10 +11,9 @@ class ResponseHandler():
 
     __responses: List[str]
 
-    def __init__(self, group_name: str):
+    def __init__(self, group_name: str, weeks_range: range):
         urls = list(map(
-            lambda week: self.__ENERS_API_URL + f'?group={group_name}&week={week}&type=one',
-            range(1, self.__WEEK_EOF)))
+            lambda week: self.__ENERS_API_URL + f'?group={group_name}&week={week}&type=one', weeks_range))
         asyncio.run(self.__load_data_responses(urls))
 
     async def __get_week(self, session: aiohttp.ClientSession, url):
