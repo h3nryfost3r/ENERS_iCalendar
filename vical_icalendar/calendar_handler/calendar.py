@@ -1,7 +1,7 @@
 from typing import List
 
 import icalendar as ical
-from eners_parser import schemas
+from vical_icalendar.eners_parser import schemas
 from datetime import datetime
 import pytz
 from uuid import uuid4
