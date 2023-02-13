@@ -1,10 +1,12 @@
+import re
+
 from bs4 import BeautifulSoup
 from datetime import date, time
 from typing import List
 
-from eners_responser.handler import ResponseHandler
-from eners_parser.schemas import Lesson, LessonType
-from eners_parser.re_patterns import *
+from vical_icalendar.eners_parser.re_patterns import *
+from vical_icalendar.eners_responser.handler import ResponseHandler
+from vical_icalendar.eners_parser.schemas import Lesson, LessonType
 
 
 class InitParser:
@@ -73,9 +75,9 @@ class ParserHandler(InitParser):
                 minute=int(lesson_time_re.group(6))
             )
 
-            lesson_type: LessonType = LessonType.LECTURE if str(re.search(RE_LESSON, event).group(1)) == 'л' else \
-                LessonType.PRACTICE if str(re.search(RE_LESSON, event).group(1)) == 'пр' else \
-                    LessonType.LAB if str(re.search(RE_LESSON, event).group(1)) == 'лаб' else \
+            lesson_type: LessonType = LessonType.LECTURE if str(re.search(RE_LESSON, event).group(1)) == 'л.' else \
+                LessonType.PRACTICE if str(re.search(RE_LESSON, event).group(1)) == 'пр.' else \
+                    LessonType.LAB if str(re.search(RE_LESSON, event).group(1)) == 'лаб.' else \
                         LessonType.EXAM if str(re.search(RE_LESSON, event).group(1)) == 'экзамен' else \
                             LessonType.UNKNOWN
 
