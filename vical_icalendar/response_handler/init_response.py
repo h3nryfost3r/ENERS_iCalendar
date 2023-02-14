@@ -1,10 +1,12 @@
+import re
+
 import requests
 import datetime
 from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
-from eners_parser.re_patterns import *
 from operator import xor
-from calendar import monthrange
+
+from vical_icalendar.parser_handler.re_patterns import RE_DATE
 
 
 class InitResponse():

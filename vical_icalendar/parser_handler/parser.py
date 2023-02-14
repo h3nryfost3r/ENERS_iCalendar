@@ -4,9 +4,9 @@ from bs4 import BeautifulSoup
 from datetime import date, time
 from typing import List
 
-from vical_icalendar.eners_parser.re_patterns import *
-from vical_icalendar.eners_responser.handler import ResponseHandler
-from vical_icalendar.eners_parser.schemas import Lesson, LessonType
+from vical_icalendar.parser_handler.re_patterns import *
+from vical_icalendar.response_handler.handler import ResponseHandler
+from vical_icalendar.parser_handler.schemas import Lesson, LessonType
 
 
 class InitParser:

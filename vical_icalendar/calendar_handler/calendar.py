@@ -1,13 +1,13 @@
 from typing import List
 
 import icalendar as ical
-from vical_icalendar.eners_parser import schemas
+from vical_icalendar.parser_handler import schemas
 from datetime import datetime
 import pytz
 from uuid import uuid4
 
 
-class EnersCalendarHandler:
+class ICalendarHandler:
     cal: ical.Calendar
     cal_tz_str: str = 'Europe/Moscow'
     __cal_tz_info = pytz.timezone(cal_tz_str)
@@ -15,7 +15,7 @@ class EnersCalendarHandler:
     def __init__(self, data: List[schemas.Lesson]):
         self.tz = pytz.timezone(self.cal_tz_str)
         self.cal = ical.Calendar({
-            'prodid': '-//ENERS calendar vALPHA//',
+            'prodid': '-//VICAL vALPHA//',
             'version': '2.0',
             'tzid': self.__cal_tz_info,
             'method': 'PUBLISH'
@@ -47,6 +47,27 @@ class EnersCalendarHandler:
         with open(path, 'wb') as f:
             f.write(self.cal.to_ical())
         return True
+
+    def __get_ical_from_file(self, path: str):
+        new_ical: ical.Calendar
+        with open(path, 'rb') as file:
+            new_ical = ical.Calendar.from_ical(file.read())
+        return new_ical
+
+    @staticmethod
+    def update_ical(
+            cal_a: ical.Calendar,
+            cal_b: ical.Calendar
+    ):
+        pass
+
+
+    @staticmethod
+    def get_diff(
+            cal_a: ical.Calendar,
+            cal_b: ical.Calendar
+    ):
+        pass
 
     def __repr__(self):
         return self.cal.__str__()
