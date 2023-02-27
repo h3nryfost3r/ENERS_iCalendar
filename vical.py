@@ -62,26 +62,5 @@ def create(
 
 
 
-
-
-
-
-
-# @app.command(
-#     help="Обновляет существующий файл iCalendar, добавляя в него новые события"
-# )
-# def update(
-#         group_name = typer.Argument(
-#             ..., help="Название вашей группы (Пример: ТРП-3-20)"),
-#         path_name: str = typer.Argument(
-#             ..., help='Путь к файлу .ics'),
-#         is_month: Optional[bool] = typer.Option(
-#             True, "--month/--week", help="события месяца или недели"),
-#         is_next: Optional[bool] = typer.Option(
-#             False, "--next/--current", help="события текущего/следующего месяца/недели")
-#
-# ):
-#     pass
-
 if __name__ == "__main__":
     app()

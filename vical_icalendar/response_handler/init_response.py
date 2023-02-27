@@ -10,17 +10,19 @@ from vical_icalendar.parser_handler.re_patterns import RE_DATE
 
 
 class InitResponse():
+    '''
+        This module implements the calculation of the academic
+        week order with reference to the current user date 
+    '''
     __headers = {
         "User-Agent": UserAgent(use_external_data=True).random
     }
     __url = 'https://eners.kgeu.ru/apish2.php'
-    __group_name: str
     __week_id = 1
     __response: str
     __soup: BeautifulSoup
     __start_date: datetime.date
     __start_week: int = 0
-    __end_week: int = 0
 
     def __init__(
             self,
@@ -43,7 +45,9 @@ class InitResponse():
                     day=int(date_init.group(1))
                 )
                 break
-
+        
+        # Calculation of the current date in relation 
+        # to the day of the first academic week 
         if xor(is_month, is_week) and (self.__start_date is not None):
             current_date = self.__start_date
             user_date = datetime.date.today()

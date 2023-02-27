@@ -9,20 +9,25 @@ from uuid import uuid4
 
 class ICalendarHandler:
     cal: ical.Calendar
-    cal_tz_str: str = 'Europe/Moscow'
-    __cal_tz_info = pytz.timezone(cal_tz_str)
+    _tz_str: str = 'Europe/Moscow'
+    __tz_info = pytz.timezone(_tz_str)
 
     def __init__(self, data: List[schemas.Lesson]):
-        self.tz = pytz.timezone(self.cal_tz_str)
+        self.tz = pytz.timezone(self._tz_str)
         self.cal = ical.Calendar({
             'prodid': '-//VICAL vALPHA//',
             'version': '2.0',
-            'tzid': self.__cal_tz_info,
+            'tzid': self.__tz_info,
             'method': 'PUBLISH'
         })
         for event in data:
             self.__add_event(event)
 
+    def __add_event(self, lesson: schemas.Lesson):
+        self.cal.add_component(
+            self.__generate_ical_Event(lesson))
+        return True
+    
     def __generate_ical_Event(self, lesson: schemas.Lesson):
         event = ical.Event({
             'uid': uuid4(),
@@ -32,16 +37,12 @@ class ICalendarHandler:
                        f'{lesson.teacher}'
         })
         event.add('dtstart', datetime.combine(
-            lesson.event_date, lesson.start_time, tzinfo=self.__cal_tz_info))
+            lesson.event_date, lesson.start_time, tzinfo=self.__tz_info))
         event.add('dtend', datetime.combine(
-            lesson.event_date, lesson.end_time, tzinfo=self.__cal_tz_info))
-        event.add('dtstamp', datetime.now(tz=self.__cal_tz_info))
+            lesson.event_date, lesson.end_time, tzinfo=self.__tz_info))
+        event.add('dtstamp', datetime.now(tz=self.__tz_info))
         return event
-
-    def __add_event(self, lesson: schemas.Lesson):
-        self.cal.add_component(
-            self.__generate_ical_Event(lesson))
-        return True
+    
 
     def write_ical(self, path='./file.ics'):
         with open(path, 'wb') as f:

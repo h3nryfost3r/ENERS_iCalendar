@@ -2,14 +2,6 @@ from dataclasses import dataclass
 from enum import Enum
 from datetime import date, time
 
-
-@dataclass
-class Event:
-    event_date: date
-    start_time: time
-    end_time: time
-
-
 class LessonType(Enum):
     UNKNOWN = "UNKNOWN"
     LECTURE = "Лекция"
@@ -17,6 +9,12 @@ class LessonType(Enum):
     LAB = "Лабораторная"
     EXAM = "Экзамен"
 
+
+@dataclass
+class Event:
+    event_date: date
+    start_time: time
+    end_time: time
 
 @dataclass
 class Lesson(Event):
